@@ -1,10 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
@@ -13,11 +15,22 @@ const (
 	screenHeight = 480
 )
 
+var ()
+
 type Game struct {
-	offscreen *ebiten.Image
+	blurIntensity float32
+	blurRadius    int
+	offscreen     *ebiten.Image
 }
 
 func (g *Game) Update() error {
+	if ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
+		g.blurIntensity += 0.01
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
+		g.blurIntensity -= 0.01
+	}
+
 	return nil
 }
 
@@ -69,7 +82,7 @@ func (g *Game) drawGlowLine(screen *ebiten.Image, x, y float64) {
 			idx := (j+3)*7 + (i + 3)
 			blur := blurBox[idx]
 			coef := 1.0 / float32(blur)
-			op.ColorScale.ScaleAlpha(coef * 0.5)
+			op.ColorScale.ScaleAlpha(coef * g.blurIntensity)
 			screen.DrawImage(line, op)
 		}
 	}
@@ -89,6 +102,8 @@ func (g *Game) drawGlowLine(screen *ebiten.Image, x, y float64) {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{0, 0, 0, 1})
+	msg := fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f\nblurIntensity:%.2f (up/down)\nblurRadius (left/right):%d", ebiten.ActualTPS(), ebiten.ActualFPS(), g.blurIntensity, g.blurRadius)
+	ebitenutil.DebugPrint(screen, msg)
 
 	g.drawGlowLine(screen, screenWidth/2-50, screenHeight/2-3)
 }
@@ -102,7 +117,10 @@ func main() {
 	ebiten.SetWindowTitle("Blur (Ebitengine Demo)")
 
 	g := &Game{}
+	g.blurIntensity = 0.5
+	g.blurRadius = 3
 	g.offscreen = ebiten.NewImage(102, 5)
+
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
 	}
