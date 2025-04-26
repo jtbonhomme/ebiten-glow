@@ -97,4 +97,4 @@ Here are some screenshots showcasing the glow effects:
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License. See the [LICENSE.md](LICENSE.md) file for details.
