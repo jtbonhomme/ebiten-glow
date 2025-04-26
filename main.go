@@ -16,6 +16,12 @@ const (
 	screenHeight = 480
 )
 
+const (
+	BlurDefaultIntensity float32 = 0.3
+	BlurDefaultRadius    int     = 10
+	BlurDefaultBase      float64 = 10.0
+)
+
 var ()
 
 type Game struct {
@@ -119,9 +125,9 @@ func main() {
 	ebiten.SetWindowTitle("Blur (Ebitengine Demo)")
 
 	g := &Game{}
-	g.blurIntensity = 0.3
-	g.blurRadius = 10
-	g.blurBase = 10.0
+	g.blurIntensity = BlurDefaultIntensity
+	g.blurRadius = BlurDefaultRadius
+	g.blurBase = BlurDefaultBase
 	g.offscreen = ebiten.NewImage(102, 5)
 
 	if err := ebiten.RunGame(g); err != nil {
