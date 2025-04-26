@@ -9,6 +9,10 @@
 - Easy-to-use API for applying glow effects.
 - Customizable glow intensity, and radius.
 
+## Demo
+
+You can open the demo site to see the `ebiten-glow` in action: https://jtbonhomme.github.io/ebiten-glow/
+
 ## Installation
 
 To install the library, use:
