@@ -10,6 +10,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+
+	"github.com/jtbonhomme/ebitenglow"
 )
 
 const (
@@ -17,48 +19,38 @@ const (
 	screenHeight = 480
 )
 
-const (
-	BlurDefaultIntensity float32 = 0.3
-	BlurDefaultRadius    int     = 10
-	BlurDefaultBase      float64 = 10.0
-)
-
 var ()
 
 type Game struct {
-	blurIntensity float32
-	blurRadius    int
-	blurBase      float64
-	glowActive    bool
-	img           []*ebiten.Image
-	offscreen     *ebiten.Image
+	glow *ebitenglow.Glow
+	img  []*ebiten.Image
 }
 
 func (g *Game) Update() error {
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		g.glowActive = !g.glowActive
+		g.glow.Active = !g.glow.Active
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
-		g.blurIntensity += 0.01
+		g.glow.BlurIntensity += 0.01
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-		g.blurIntensity -= 0.01
+		g.glow.BlurIntensity -= 0.01
 	}
 
 	// this mapping is made from a qwerty keyboard
 	if inpututil.IsKeyJustPressed(ebiten.KeyA) {
-		g.blurBase -= 0.5
+		g.glow.BlurBase -= 0.5
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
-		g.blurBase += 0.5
+		g.glow.BlurBase += 0.5
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
-		g.blurRadius += 1
+		g.glow.BlurRadius += 1
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
-		g.blurRadius -= 1
+		g.glow.BlurRadius -= 1
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
@@ -66,30 +58,6 @@ func (g *Game) Update() error {
 	}
 
 	return nil
-}
-
-func (g *Game) drawGlowImage(screen *ebiten.Image, img *ebiten.Image, x, y float64) {
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(x, y)
-	// Draw the result on the passed coordinates.
-
-	if g.glowActive {
-		// Box blur (7x7)
-		// https://en.wikipedia.org/wiki/Box_blur
-		for j := -g.blurRadius; j <= g.blurRadius; j++ {
-			for i := -g.blurRadius; i <= g.blurRadius; i++ {
-				op := &ebiten.DrawImageOptions{}
-				op.GeoM.Translate(x+float64(i), y+float64(j))
-				// This is a box blur, so we need to set the color scale to the inverse of the blurBox value.
-				blur := float64(i*i+j*j) + g.blurBase
-				coef := 1.0 / float32(blur)
-				op.ColorScale.ScaleAlpha(coef * g.blurIntensity)
-				screen.DrawImage(img, op)
-			}
-		}
-	}
-
-	screen.DrawImage(img, op)
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
@@ -100,13 +68,14 @@ FPS:            %0.2f
 blurIntensity:  %.2f    (up/down)
 blurRadius:     %d      (left/right)
 blurBase:       %.2f   (a/q)
-glow is active: %t    (space)`,
-		ebiten.ActualTPS(), ebiten.ActualFPS(), g.blurIntensity, g.blurRadius, g.blurBase, g.glowActive)
+glow is active: %t    (space)
+PRESS ESCAPE TO QUIT`,
+		ebiten.ActualTPS(), ebiten.ActualFPS(), g.glow.BlurIntensity, g.glow.BlurRadius, g.glow.BlurBase, g.glow.Active)
 
 	ebitenutil.DebugPrint(screen, msg)
 
 	for i := 0; i < len(g.img); i++ {
-		g.drawGlowImage(screen, g.img[i], float64(i+1)*(screenWidth/3), screenHeight/2-3)
+		g.glow.DrawImageAt(screen, g.img[i], float64(i+1)*(screenWidth/3), screenHeight/2-3)
 	}
 }
 
@@ -114,9 +83,12 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return screenWidth, screenHeight
 }
 
+// main function initializes the game and starts the ebiten loop.
+// It sets the window size, title, and creates a new Game instance.
+// It also creates 2 simple images to be drawn on the screen and initializes the glow effect.
 func main() {
 	ebiten.SetWindowSize(screenWidth, screenHeight)
-	ebiten.SetWindowTitle("Blur (Ebitengine Demo)")
+	ebiten.SetWindowTitle("Glow Demo (Ebitengine))")
 
 	g := &Game{}
 
@@ -143,11 +115,7 @@ func main() {
 	vector.StrokeLine(g.img[1], 103, 3, 103, 103, 3, c1, true)
 	vector.StrokeLine(g.img[1], 3, 103, 103, 103, 3, c1, true)
 
-	g.blurIntensity = BlurDefaultIntensity
-	g.blurRadius = BlurDefaultRadius
-	g.blurBase = BlurDefaultBase
-	g.offscreen = ebiten.NewImage(102, 5)
-	g.glowActive = true
+	g.glow = ebitenglow.New()
 
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
