@@ -42,7 +42,7 @@ func (g *Game) drawGlowLine(screen *ebiten.Image, x, y float64) {
 		G: uint8(255),
 		B: uint8(50),
 		A: uint8(255)}
-	vector.StrokeLine(line, 1, 3, 101, 3, 3, c, true)
+	vector.StrokeLine(line, 0, 3, 100, 3, 3, c, true)
 
 	line2 := ebiten.NewImage(102, 5)
 	c2 := color.RGBA{
@@ -50,7 +50,7 @@ func (g *Game) drawGlowLine(screen *ebiten.Image, x, y float64) {
 		G: uint8(0),
 		B: uint8(255),
 		A: uint8(255)}
-	vector.StrokeLine(line2, 1, 3, 101, 3, 3, c2, true)
+	vector.StrokeLine(line2, 0, 3, 100, 3, 3, c2, true)
 
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(x, y)
@@ -66,13 +66,13 @@ func (g *Game) drawGlowLine(screen *ebiten.Image, x, y float64) {
 	// Box blur (7x7)
 	// https://en.wikipedia.org/wiki/Box_blur
 	blurBox := []int{
-		13, 13, 13, 13, 13, 13, 13,
-		13, 17, 17, 17, 17, 17, 13,
-		13, 17, 21, 21, 21, 17, 13,
-		13, 17, 21, 25, 21, 17, 13,
-		13, 17, 21, 21, 21, 17, 13,
-		13, 17, 17, 17, 17, 17, 13,
-		13, 13, 13, 13, 13, 13, 13,
+		10, 10, 10, 10, 10, 10, 10,
+		10, 15, 15, 15, 15, 15, 10,
+		10, 15, 20, 20, 20, 15, 10,
+		10, 15, 20, 25, 20, 15, 10,
+		10, 15, 20, 20, 20, 15, 10,
+		10, 15, 15, 15, 15, 15, 10,
+		10, 10, 10, 10, 10, 10, 10,
 	}
 	for j := -3; j <= 3; j++ {
 		for i := -3; i <= 3; i++ {
