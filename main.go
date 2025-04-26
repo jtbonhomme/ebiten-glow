@@ -8,6 +8,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
@@ -34,32 +35,33 @@ type Game struct {
 }
 
 func (g *Game) Update() error {
-	if ebiten.IsKeyPressed(ebiten.KeySpace) {
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		g.glowActive = !g.glowActive
 	}
 
-	if ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
 		g.blurIntensity += 0.01
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
 		g.blurIntensity -= 0.01
 	}
 
-	if ebiten.IsKeyPressed(ebiten.KeyA) {
-		g.blurBase += 0.5
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyQ) {
+	// this mapping is made from a qwerty keyboard
+	if inpututil.IsKeyJustPressed(ebiten.KeyA) {
 		g.blurBase -= 0.5
 	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
+		g.blurBase += 0.5
+	}
 
-	if ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
 		g.blurRadius += 1
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
 		g.blurRadius -= 1
 	}
 
-	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
 		os.Exit(0)
 	}
 
