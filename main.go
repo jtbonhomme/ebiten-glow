@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"log"
+	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -20,6 +21,7 @@ var ()
 type Game struct {
 	blurIntensity float32
 	blurRadius    int
+	blurBase      float64
 	offscreen     *ebiten.Image
 }
 
@@ -29,6 +31,24 @@ func (g *Game) Update() error {
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
 		g.blurIntensity -= 0.01
+	}
+
+	if ebiten.IsKeyPressed(ebiten.KeyA) {
+		g.blurBase += 0.5
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyQ) {
+		g.blurBase -= 0.5
+	}
+
+	if ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
+		g.blurRadius += 1
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
+		g.blurRadius -= 1
+	}
+
+	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
+		os.Exit(0)
 	}
 
 	return nil
@@ -44,14 +64,6 @@ func (g *Game) drawGlowLine(screen *ebiten.Image, x, y float64) {
 		A: uint8(255)}
 	vector.StrokeLine(line, 0, 3, 100, 3, 3, c, true)
 
-	line2 := ebiten.NewImage(102, 5)
-	c2 := color.RGBA{
-		R: uint8(0),
-		G: uint8(0),
-		B: uint8(255),
-		A: uint8(255)}
-	vector.StrokeLine(line2, 0, 3, 100, 3, 3, c2, true)
-
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(x, y)
 	// Draw the result on the passed coordinates.
@@ -65,29 +77,19 @@ func (g *Game) drawGlowLine(screen *ebiten.Image, x, y float64) {
 
 	// Box blur (7x7)
 	// https://en.wikipedia.org/wiki/Box_blur
-	blurBox := []int{
-		10, 10, 10, 10, 10, 10, 10,
-		10, 15, 15, 15, 15, 15, 10,
-		10, 15, 20, 20, 20, 15, 10,
-		10, 15, 20, 25, 20, 15, 10,
-		10, 15, 20, 20, 20, 15, 10,
-		10, 15, 15, 15, 15, 15, 10,
-		10, 10, 10, 10, 10, 10, 10,
-	}
-	for j := -3; j <= 3; j++ {
-		for i := -3; i <= 3; i++ {
+	for j := -g.blurRadius; j <= g.blurRadius; j++ {
+		for i := -g.blurRadius; i <= g.blurRadius; i++ {
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(x+float64(i), y+float64(j))
 			// This is a box blur, so we need to set the color scale to the inverse of the blurBox value.
-			idx := (j+3)*7 + (i + 3)
-			blur := blurBox[idx]
+			blur := float64(i*i+j*j) + g.blurBase
 			coef := 1.0 / float32(blur)
 			op.ColorScale.ScaleAlpha(coef * g.blurIntensity)
 			screen.DrawImage(line, op)
 		}
 	}
 
-	screen.DrawImage(line2, op)
+	screen.DrawImage(line, op)
 
 	// Select and apply blending mode.
 	//op.Blend = ebiten.BlendSourceOver
@@ -102,7 +104,7 @@ func (g *Game) drawGlowLine(screen *ebiten.Image, x, y float64) {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{0, 0, 0, 1})
-	msg := fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f\nblurIntensity:%.2f (up/down)\nblurRadius (left/right):%d", ebiten.ActualTPS(), ebiten.ActualFPS(), g.blurIntensity, g.blurRadius)
+	msg := fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f\nblurIntensity:%.2f (up/down)\nblurRadius (left/right):%d\nblurBase:%.2f (a/q)", ebiten.ActualTPS(), ebiten.ActualFPS(), g.blurIntensity, g.blurRadius, g.blurBase)
 	ebitenutil.DebugPrint(screen, msg)
 
 	g.drawGlowLine(screen, screenWidth/2-50, screenHeight/2-3)
@@ -117,8 +119,9 @@ func main() {
 	ebiten.SetWindowTitle("Blur (Ebitengine Demo)")
 
 	g := &Game{}
-	g.blurIntensity = 0.5
-	g.blurRadius = 3
+	g.blurIntensity = 0.3
+	g.blurRadius = 10
+	g.blurBase = 10.0
 	g.offscreen = ebiten.NewImage(102, 5)
 
 	if err := ebiten.RunGame(g); err != nil {
