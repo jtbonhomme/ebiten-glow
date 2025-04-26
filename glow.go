@@ -1,3 +1,5 @@
+// ebiten-glow is a Go library built on top of the Ebiten (https://ebiten.org/) game library.
+// It provides utilities for creating glowing visual effects in 2D games or graphical applications. The library simplifies the process of adding dynamic glow effects to sprites, shapes, and other graphical elements.
 package ebitenglow
 
 import (
@@ -21,10 +23,10 @@ type Glow struct {
 // New creates a new Glow instance with default values.
 // It initializes the blur intensity, radius, base, and glow active state.
 // The default values are:
-// - Blur intensity: 0.3
-// - Blur radius: 10
-// - Blur base: 10.0
-// - Glow active: true
+//   - Blur intensity: 0.3
+//   - Blur radius: 10
+//   - Blur base: 10.0
+//   - Glow active: true
 func New() *Glow {
 	return &Glow{
 		BlurIntensity: BlurDefaultIntensity,
@@ -41,10 +43,10 @@ func New() *Glow {
 // The blur intensity and base values control the appearance of the blur effect.
 // The function uses the ebiten library to handle image drawing and transformations.
 // The function takes the following parameters:
-// - screen: The ebiten image representing the screen where the image will be drawn.
-// - img: The ebiten image to be drawn.
-// - x: The x-coordinate where the image will be drawn.
-// - y: The y-coordinate where the image will be drawn.
+//   - screen: The ebiten image representing the screen where the image will be drawn.
+//   - img: The ebiten image to be drawn.
+//   - x: The x-coordinate where the image will be drawn.
+//   - y: The y-coordinate where the image will be drawn.
 func (g *Glow) DrawImageAt(screen *ebiten.Image, img *ebiten.Image, x, y float64) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(x, y)
