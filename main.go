@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image/color"
 	"log"
 
@@ -53,54 +52,28 @@ func (g *Game) drawGlowLine(screen *ebiten.Image, x, y float64) {
 
 	// Box blur (7x7)
 	// https://en.wikipedia.org/wiki/Box_blur
-	//
-	// Note that this is a fixed function implementation of a box blur - more
-	// efficiency can be gained by using a separable blur
-	// (blurring horizontally and vertically separately, or for large blurs,
-	// even multiple horizontal or vertical passes), ideally combined with
-	// doing the summing up in a fragment shader (Kage can be used here).
-	//
-	// So this implementation only serves to demonstrate use of alpha blending.
 	blurBox := []int{
-		9, 9, 9, 9, 9, 9, 9,
-		9, 7, 7, 7, 7, 7, 9,
-		9, 7, 5, 5, 5, 7, 9,
-		9, 7, 5, 1, 5, 7, 9,
-		9, 7, 5, 5, 5, 7, 9,
-		9, 7, 7, 7, 7, 7, 9,
-		9, 9, 9, 9, 9, 9, 9,
+		13, 13, 13, 13, 13, 13, 13,
+		13, 17, 17, 17, 17, 17, 13,
+		13, 17, 21, 21, 21, 17, 13,
+		13, 17, 21, 25, 21, 17, 13,
+		13, 17, 21, 21, 21, 17, 13,
+		13, 17, 17, 17, 17, 17, 13,
+		13, 13, 13, 13, 13, 13, 13,
 	}
 	for j := -3; j <= 3; j++ {
 		for i := -3; i <= 3; i++ {
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(x+float64(i), y+float64(j))
-			// This is a blur based on the source-over blend mode,
-			// which is basically (GL_ONE, GL_ONE_MINUS_SRC_ALPHA). ColorM acts
-			// on unpremultiplied colors, but all Ebitengine internal colors are
-			// premultiplied, meaning this mode is regular alpha blending,
-			// computing each destination pixel as srcPix * alpha + dstPix * (1 - alpha).
-			//
-			// This means that the final color is affected by the destination color when BlendSourceOver is used.
-			// This blend mode is the default mode. See how this is calculated at the doc:
-			// https://pkg.go.dev/github.com/hajimehoshi/ebiten/v2#Blend
-			//
-			// So if using the same alpha every time, the end result will sure be biased towards the last layer.
-			//
-			// Correct averaging works based on
-			//   Let A_n := (a_1 + ... + a_n) / n
-			//   A_{n+1} = (a_1 + ... + a_{n+1}) / (n + 1)
-			//   A_{n+1} = (n * A_n + a_{n+1)) / (n + 1)
-			//   A_{n+1} = A_n * (1 - 1/(n+1)) + a_{n+1} * 1/(n+1)
-			// which is precisely what an alpha blend with alpha 1/(n+1) does.
-
 			// This is a box blur, so we need to set the color scale to the inverse of the blurBox value.
 			idx := (j+3)*7 + (i + 3)
 			blur := blurBox[idx]
-			fmt.Printf("%d %d (%d): blur: %d\n", i, j, idx, blur)
-			op.ColorScale.ScaleAlpha(1 / float32(blur))
+			coef := 1.0 / float32(blur)
+			op.ColorScale.ScaleAlpha(coef * 0.5)
 			screen.DrawImage(line, op)
 		}
 	}
+
 	screen.DrawImage(line2, op)
 
 	// Select and apply blending mode.
