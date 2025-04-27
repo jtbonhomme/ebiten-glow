@@ -1,6 +1,6 @@
 // ebiten-glow is a Go library built on top of the Ebiten (https://ebiten.org/) game library.
 // It provides utilities for creating glowing visual effects in 2D games or graphical applications. The library simplifies the process of adding dynamic glow effects to sprites, shapes, and other graphical elements.
-package ebitenglow
+package glow
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"

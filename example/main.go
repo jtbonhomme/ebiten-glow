@@ -11,7 +11,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 
-	"github.com/jtbonhomme/ebitenglow"
+	glow "github.com/jtbonhomme/ebiten-glow"
 )
 
 const (
@@ -22,7 +22,7 @@ const (
 var ()
 
 type Game struct {
-	glow *ebitenglow.Glow
+	glow *glow.Glow
 	img  []*ebiten.Image
 }
 
@@ -115,7 +115,7 @@ func main() {
 	vector.StrokeLine(g.img[1], 103, 3, 103, 103, 3, c1, true)
 	vector.StrokeLine(g.img[1], 3, 103, 103, 103, 3, c1, true)
 
-	g.glow = ebitenglow.New()
+	g.glow = glow.New()
 
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)

@@ -1,6 +1,9 @@
 # ebiten-glow
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/jtbonhomme/ebiten-glow)](https://pkg.go.dev/github.com/jtbonhomme/ebiten-glow)
+[![issues](https://img.shields.io/github/issues/jtbonhomme/ebiten-glow)](https://github.com/jtbonhomme/ebiten-glow/issues)
+![GitHub Release](https://img.shields.io/github/v/release/jtbonhomme/ebiten-glow)
+[![license](https://img.shields.io/github/license/jtbonhomme/ebiten-glow)](https://github.com/jtbonhomme/ebiten-glow/blob/main/LICENSE)
 
 `ebiten-glow` is a Go library built on top of the [Ebiten](https://ebiten.org/) game library. It provides utilities for creating glowing visual effects in 2D games or graphical applications. The library simplifies the process of adding dynamic glow effects to sprites, shapes, and other graphical elements.
 
@@ -33,7 +36,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"github.com/jtbonhomme/ebitenglow"
+	glow "github.com/jtbonhomme/ebiten-glow"
 )
 
 type Game struct{}
@@ -54,7 +57,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	vector.StrokeLine(line, 0, 3, 100, 3, 3, c, true)
 
 	// Initantiate a glow effect object with default parameters.
-	glowEffect := ebitenglow.New()
+	glowEffect := glow.New()
 
 	// Draw the glowing line
 	glowEffect.DrawImageAt(screen, line, 50, 50)

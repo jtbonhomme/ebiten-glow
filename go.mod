@@ -1,4 +1,4 @@
-module github.com/jtbonhomme/ebitenglow
+module github.com/jtbonhomme/ebiten-glow
 
 go 1.22.0
 
